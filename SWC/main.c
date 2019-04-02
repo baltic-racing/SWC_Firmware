@@ -13,6 +13,7 @@
 unsigned long time=0;
 unsigned long time_old_10 = 0;
 struct CAN_MOB mob_to_transmit;
+uint8_t mob_0_data[8];
 
 void read_inputs();
 
@@ -31,7 +32,7 @@ int main(void){
 		
 		if((time-time_old_10)>=10){
 			read_inputs();
-			can_tx(&mob_to_transmit);
+			can_tx(&mob_to_transmit, mob_0_data);
 			
 			
 		}
@@ -41,12 +42,12 @@ int main(void){
 
 void read_inputs(){
 	
-	mob_to_transmit.data_bytes[0] = graytobcd((~PINB)&0b00001111);
-	mob_to_transmit.data_bytes[1] = graytobcd((~PINB)>>4);
-	mob_to_transmit.data_bytes[2] = (((~PINC)>>PC0)&1);
-	mob_to_transmit.data_bytes[3] = (((~PINC)>>PC1)&1);
-	mob_to_transmit.data_bytes[4] = (((~PINC)>>PC2)&1);
-	mob_to_transmit.data_bytes[5] = (((~PINC)>>PC3)&1);
+	mob_0_data[0] = graytobcd((~PINB)&0b00001111);
+	mob_0_data[1] = graytobcd((~PINB)>>4);
+	mob_0_data[2] = (((~PINC)>>PC0)&1);
+	mob_0_data[3] = (((~PINC)>>PC1)&1);
+	mob_0_data[4] = (((~PINC)>>PC2)&1);
+	mob_0_data[5] = (((~PINC)>>PC3)&1);
 	
 }
 
