@@ -12,6 +12,10 @@
 void port_config(){
 	
 	
+	PORTB = 0b11111111;
+	PORTC = 0b00001111;
+	
+	
 	
 }
 uint8_t graytobcd(uint8_t graycode){

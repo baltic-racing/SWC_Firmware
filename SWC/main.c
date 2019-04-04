@@ -10,8 +10,7 @@
 #include "canlib.h"
 
 
-unsigned long time=0;
-unsigned long time_old_10 = 0;
+volatile unsigned long system_time=0;
 struct CAN_MOB mob_to_transmit;
 uint8_t mob_0_data[8];
 
@@ -28,14 +27,16 @@ int main(void){
 	mob_to_transmit.mob_idmask = 0;
 	mob_to_transmit.mob_number = 0;
 	
+	sei();
+	
     while (1){
 		
-		if((time-time_old_10)>=10){
+		if(system_time > 10){
+			system_time = 0;
 			read_inputs();
 			can_tx(&mob_to_transmit, mob_0_data);
-			
-			
 		}
+		
 	}
 }
 
@@ -54,7 +55,7 @@ void read_inputs(){
 
 ISR(TIMER0_COMP_vect){
 		
-	time++; //system time generation
+	system_time++; //system time generation
 	
 }
 
