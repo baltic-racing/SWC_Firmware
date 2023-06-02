@@ -282,7 +282,7 @@ void read_inputs(){
  1fc:	cf 93       	push	r28
  1fe:	df 93       	push	r29
 	//Reads inputs of following buttons:...
-	R2D_databytes[0] = graytobcd((~PINB)&0b00001111); //Rotary Encoder left
+	SWC_databytes[0] = graytobcd((~PINB)&0b00001111); //Rotary Encoder left
  200:	83 b1       	in	r24, 0x03	; 3
  202:	80 95       	com	r24
  204:	8f 70       	andi	r24, 0x0F	; 15
@@ -290,7 +290,7 @@ void read_inputs(){
  208:	cd e0       	ldi	r28, 0x0D	; 13
  20a:	d1 e0       	ldi	r29, 0x01	; 1
  20c:	88 83       	st	Y, r24
-	R2D_databytes[1] = graytobcd((~PINB)>>4); //Rotary Encoder right
+	SWC_databytes[1] = graytobcd((~PINB)>>4); //Rotary Encoder right
  20e:	83 b1       	in	r24, 0x03	; 3
  210:	90 e0       	ldi	r25, 0x00	; 0
  212:	80 95       	com	r24
@@ -305,13 +305,13 @@ void read_inputs(){
  224:	87 95       	ror	r24
  226:	96 d0       	rcall	.+300    	; 0x354 <graytobcd>
  228:	89 83       	std	Y+1, r24	; 0x01
-	R2D_databytes[2] = (((~PINA)>>PA0)&1); //Push button left
+	SWC_databytes[2] = (((~PINA)>>PA0)&1); //Push button left
  22a:	90 b1       	in	r25, 0x00	; 0
  22c:	81 e0       	ldi	r24, 0x01	; 1
  22e:	89 27       	eor	r24, r25
  230:	81 70       	andi	r24, 0x01	; 1
  232:	8a 83       	std	Y+2, r24	; 0x02
-	R2D_databytes[3] = (((~PINA)>>PA1)&1); //Push button right
+	SWC_databytes[3] = (((~PINA)>>PA1)&1); //Push button right
  234:	80 b1       	in	r24, 0x00	; 0
  236:	90 e0       	ldi	r25, 0x00	; 0
  238:	80 95       	com	r24
@@ -320,7 +320,7 @@ void read_inputs(){
  23e:	87 95       	ror	r24
  240:	81 70       	andi	r24, 0x01	; 1
  242:	8b 83       	std	Y+3, r24	; 0x03
-	R2D_databytes[4] = (((~PINA)>>PA2)&1);	//Switch 1 (right)
+	SWC_databytes[4] = (((~PINA)>>PA2)&1);	//Switch 1 (right)
  244:	80 b1       	in	r24, 0x00	; 0
  246:	90 e0       	ldi	r25, 0x00	; 0
  248:	80 95       	com	r24
@@ -331,7 +331,7 @@ void read_inputs(){
  252:	87 95       	ror	r24
  254:	81 70       	andi	r24, 0x01	; 1
  256:	8c 83       	std	Y+4, r24	; 0x04
-	R2D_databytes[5] = (((~PINA)>>PA3)&1); //Switch 2 (right)
+	SWC_databytes[5] = (((~PINA)>>PA3)&1); //Switch 2 (right)
  258:	80 b1       	in	r24, 0x00	; 0
  25a:	90 e0       	ldi	r25, 0x00	; 0
  25c:	80 95       	com	r24
@@ -344,7 +344,7 @@ void read_inputs(){
  26a:	87 95       	ror	r24
  26c:	81 70       	andi	r24, 0x01	; 1
  26e:	8d 83       	std	Y+5, r24	; 0x05
-	R2D_databytes[6] = (((~PINA)>>PA4)&1); //Switch 3 (left)
+	SWC_databytes[6] = (((~PINA)>>PA4)&1); //Switch 3 (left)
  270:	80 b1       	in	r24, 0x00	; 0
  272:	90 e0       	ldi	r25, 0x00	; 0
  274:	80 95       	com	r24
@@ -359,7 +359,7 @@ void read_inputs(){
  286:	87 95       	ror	r24
  288:	81 70       	andi	r24, 0x01	; 1
  28a:	8e 83       	std	Y+6, r24	; 0x06
-	R2D_databytes[7] = (((~PINA)>>PA5)&1); //Switch 4 (left)
+	SWC_databytes[7] = (((~PINA)>>PA5)&1); //Switch 4 (left)
  28c:	80 b1       	in	r24, 0x00	; 0
  28e:	90 e0       	ldi	r25, 0x00	; 0
  290:	80 95       	com	r24
@@ -382,8 +382,8 @@ void read_inputs(){
  2b0:	08 95       	ret
 
 000002b2 <main>:
-
-void read_inputs();
+struct CAN_MOB can_SWC_mob;
+uint8_t SWC_databytes[8];
 
 int main(void)
 {
@@ -394,31 +394,28 @@ int main(void)
  2b4:	46 d0       	rcall	.+140    	; 0x342 <port_config>
 	timer_config();
  2b6:	61 d0       	rcall	.+194    	; 0x37a <timer_config>
-	
 	can_cfg();
  2b8:	1b df       	rcall	.-458    	; 0xf0 <can_cfg>
  2ba:	e8 e0       	ldi	r30, 0x08	; 8
-	//configure mob array
-	/*mob_to_transmit.mob_id = 0x100;
-	mob_to_transmit.mob_idmask = 0;
-	mob_to_transmit.mob_number = 0;*/
-	can_R2D_mob.mob_id = 0b100000000;
+
+	
+	can_SWC_mob.mob_id = 0x750;
  2bc:	f1 e0       	ldi	r31, 0x01	; 1
- 2be:	80 e0       	ldi	r24, 0x00	; 0
- 2c0:	91 e0       	ldi	r25, 0x01	; 1
+ 2be:	80 e5       	ldi	r24, 0x50	; 80
+ 2c0:	97 e0       	ldi	r25, 0x07	; 7
  2c2:	91 83       	std	Z+1, r25	; 0x01
  2c4:	80 83       	st	Z, r24
  2c6:	13 82       	std	Z+3, r1	; 0x03
-	can_R2D_mob.mob_idmask = 0;
+	can_SWC_mob.mob_idmask = 0; //transmission needs no masking
  2c8:	12 82       	std	Z+2, r1	; 0x02
  2ca:	14 82       	std	Z+4, r1	; 0x04
-	can_R2D_mob.mob_number = 0;
+	can_SWC_mob.mob_number = 0;
  2cc:	80 91 04 01 	lds	r24, 0x0104	; 0x800104 <system_time>
 
     while (1) 
     {
 		
-		if(system_time > 10){
+		if(system_time > 10){								//every 10ms the Controller becomes active... (100hz)
  2d0:	90 91 05 01 	lds	r25, 0x0105	; 0x800105 <system_time+0x1>
  2d4:	a0 91 06 01 	lds	r26, 0x0106	; 0x800106 <system_time+0x2>
  2d8:	b0 91 07 01 	lds	r27, 0x0107	; 0x800107 <system_time+0x3>
@@ -427,16 +424,14 @@ int main(void)
  2e0:	b1 05       	cpc	r27, r1
  2e2:	a0 f3       	brcs	.-24     	; 0x2cc <main+0x1a>
  2e4:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <system_time>
-				//every 10ms the Controller becomes active...
 				system_time = 0;
  2e8:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <system_time+0x1>
  2ec:	10 92 06 01 	sts	0x0106, r1	; 0x800106 <system_time+0x2>
  2f0:	10 92 07 01 	sts	0x0107, r1	; 0x800107 <system_time+0x3>
-				read_inputs(); //saves input data to mob array
+				read_inputs();								 //saves input data to mob array	
  2f4:	83 df       	rcall	.-250    	; 0x1fc <read_inputs>
  2f6:	6d e0       	ldi	r22, 0x0D	; 13
-				//can_tx(&mob_to_transmit, mob_0_data); //transmits collected data to Canbus	
-				can_tx(&can_R2D_mob, R2D_databytes);
+				can_tx(&can_SWC_mob, SWC_databytes);		//transmits collected data to CAN bus
  2f8:	71 e0       	ldi	r23, 0x01	; 1
  2fa:	88 e0       	ldi	r24, 0x08	; 8
  2fc:	91 e0       	ldi	r25, 0x01	; 1
@@ -459,8 +454,7 @@ int main(void)
  328:	a1 05       	cpc	r26, r1
  32a:	b1 05       	cpc	r27, r1
  32c:	78 f2       	brcs	.-98     	; 0x2cc <main+0x1a>
-					//toggles state of heart LED every 100ms
-					toggle_BL();
+					toggle_BL();							//toggles state of heart LED every 100ms
  32e:	2d d0       	rcall	.+90     	; 0x38a <toggle_BL>
  330:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
 					system_time_extended = 0;

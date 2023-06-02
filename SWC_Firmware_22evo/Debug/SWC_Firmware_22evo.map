@@ -8,8 +8,8 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
 Allocating common symbols
 Common symbol       size              file
 
-can_R2D_mob         0x5               main.o
-R2D_databytes       0x8               main.o
+can_SWC_mob         0x5               main.o
+SWC_databytes       0x8               main.o
 
 Discarded input sections
 
@@ -359,8 +359,8 @@ END GROUP
                 0x00800104                system_time
  *(COMMON)
  COMMON         0x00800108        0xd main.o
-                0x00800108                can_R2D_mob
-                0x0080010d                R2D_databytes
+                0x00800108                can_SWC_mob
+                0x0080010d                SWC_databytes
                 0x00800115                PROVIDE (__bss_end, .)
                 0x000003e2                __data_load_start = LOADADDR (.data)
                 0x000003e2                __data_load_end = (__data_load_start + SIZEOF (.data))
