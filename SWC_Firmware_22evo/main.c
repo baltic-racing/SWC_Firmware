@@ -38,7 +38,7 @@ int main(void)
     while (1) 
     {
 		
-		if(system_time > 10){								//every 10ms the Controller becomes active... (100hz)
+		if(system_time > 9){								//every 10ms the Controller becomes active... (100hz)
 				system_time = 0;
 				read_inputs();								 //saves input data to mob array	
 				can_tx(&can_SWC_mob, SWC_databytes);		//transmits collected data to CAN bus
@@ -54,6 +54,8 @@ int main(void)
 
 void read_inputs(){
 	//Reads inputs of following buttons:...
+	//SWC_databytes[0] = (~PINB)&0b00001111; //Rotary Encoder left
+	//SWC_databytes[1] = ((~PINB)>>4)&0b00001111; //Rotary Encoder right
 	SWC_databytes[0] = graytobcd((~PINB)&0b00001111); //Rotary Encoder left
 	SWC_databytes[1] = graytobcd((~PINB)>>4); //Rotary Encoder right
 	SWC_databytes[2] = (((~PINA)>>PA0)&1); //Push button left

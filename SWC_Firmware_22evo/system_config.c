@@ -25,7 +25,13 @@ void port_config(){
 }
 
 uint8_t graytobcd(uint8_t graycode){
-
+	
+	//uint8_t bin;
+	//int i;
+	//for(i=5; i >= 0; i--){
+		//bin = bin | ((graycode & 1<<i)>>i ^ (bin & 1<<(i + 1))>>i)<<i;
+	//}
+	//return bin;
 	uint8_t returnvalue = graycode & 0b00001000;
 	returnvalue |= (graycode ^ (returnvalue >> 1)) & 0b00000100;
 	returnvalue |= (graycode ^ (returnvalue >> 1)) & 0b00000010;
@@ -38,7 +44,7 @@ void timer_config(){
 	//8 bit Timer 0 config
 	//ctc mode and 64 as prescaler
 	TCCR0A = 0 | (1<<WGM01) /*| (1<<COM0A1) */| (1<<CS01) | (1<<CS00);
-	TIMSK0 = 0 | (1<<OCF0A); //compare interrupt enable
+	TIMSK0 = 0 | (1<<OCIE0A); //compare interrupt enable
 	OCR0A = 250-1; // compare value for 1ms;
 
 }
